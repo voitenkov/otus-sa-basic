@@ -1,0 +1,162 @@
+@startuml
+
+' hide the spot
+' hide circle
+
+' avoid problems with angled crows feet
+skinparam linetype ortho
+
+entity "Наряд-заказ" as task_order {
+    * task_order_id : int4 (PK)
+    --
+    * task_order_no : varchar 
+    * task_order_date : date 
+    * service_station_id : int4 (FK) 
+    * service_station_name : varchar 
+    * employee_id : int4 (FK)
+    * employee_full_name : varchar 
+    * vehicle_id : int4 (FK)
+    * vehicle_VIN : char 
+    * engine_no : varchar 
+    * vehicle_model : varchar 
+    * vehicle_year : date 
+    * vehicle_reg_no : varchar 
+    * vehicle_mileage : int4 
+    vehicle_warranty_start : date 
+    * customer_id : int4 (FK)
+    * customer_fulll_name : varchar 
+    * customer_address : varchar 
+    * customer_passport_no : varchar 
+    * customer_contacts : varchar 
+    * works_hours : numeric(3,1)
+    * works_amount : money 
+    * parts_amount : money 
+}
+
+entity "Работы наряд-заказа" as works_list {
+    * task_order_id : int4 (FK)
+    * work_id : int4 (FK)
+    --
+    * work_name : varchar 
+    * work_hours : numeric(2,1) 
+    * work_qty : int4 
+    * work_amount : money 
+}
+
+entity "Запчасти наряд-заказа" as parts_list {
+    * task_order_id : int4 (FK)
+    * part_id : int4 (FK)
+    --
+    * part_name : varchar 
+    * part_no : varchar 
+    * part_qty : int4 
+    * part_amount : money 
+}
+
+entity "Справочник работ" as works {
+    * work_id : int4 (PK)
+    --
+    * work_name : varchar 
+    * work_hours : numeric(3,1) 
+    * work_cost : money 
+    * skill_id : int4 (FK)
+}
+
+entity "Автомобили клиентов" as vehicles {
+    * vehicle_id : int4 (PK)
+    --
+    * customer_id : int4 (FK)
+    * vehicle_VIN : char 
+    * vehicle_engine_no : varchar 
+    * vehicle_model : varchar 
+    * vehicle_year : date 
+    * vehicle_reg_no : varchar 
+    * vehicle_mileage : int4 
+    vehicle_warranty_start : date 
+}
+
+entity "Справочник клиентов" as customers {
+    * customer_id : int4 (PK)
+    --
+    * customer_surname : varchar 
+    * customer_name : varchar 
+    customer_patronymic : varchar 
+    * customer_address : varchar 
+    * customer_passport_no : varchar 
+    * customer_contacts : varchar 
+}
+
+entity "Справочник сотрудников" as employees {
+    * employee_id : int4 (PK)
+    --
+    * employee_surname : varchar 
+    * employee_name : varchar 
+    employee_patronymic : varchar 
+    * position_id : int4 (FK)
+}
+
+entity "Справочник механиков" as mechanics {
+    * mechanic_id : int4 (PK)  
+    --
+    * employee_id : int4 (FK)
+    * skill_id : int4 (FK)
+}
+
+entity "Справочник квалификаций" as skills {
+    * skill_id : int4 (PK)
+    --
+    * skill_name : varchar 
+}
+
+entity "Справочник запчастей" as parts {
+    * part_id : int4 (PK)
+    --
+    * part_no : varchar 
+    * part_name : varchar 
+    * part_price : money 
+}
+
+entity "Справочник СТО" as service_stations {
+    * service_station_id : int4 (PK)
+    --
+    * service_station_name : varchar 
+    * service_station_address : varchar 
+}
+
+entity "Справочник должностей" as positions {
+    * position_id : int4 (PK)
+    --
+    * position_name : varchar  
+}
+
+entity "Остатки запчастей" as availability {
+    * part_id : int4 (FK)
+    * warehouse_id : int4 (FK)
+    --
+    * qty_available : int4 
+    * qty_reserved : int4 
+}
+
+entity "Справочник складов" as warehouses {
+    * warehouse_id : int4 (PK)
+    --
+    * warehouse_name : varchar 
+    * warehouse_address : varchar 
+}
+
+task_order   ||--|{ works_list
+task_order   ||--o{ parts_list
+task_order   }o--|| service_stations
+task_order   }o--|| employees
+task_order   }o--|| vehicles
+works_list   }o--|| works
+parts_list   }o--|| parts
+works        }o--|| skills
+vehicles     }o--|| customers
+employees    }o--|| positions
+mechanics    |o--|| employees
+mechanics    }o--|| skills
+availability }o--|| parts
+availability }o--|| warehouses
+
+@enduml

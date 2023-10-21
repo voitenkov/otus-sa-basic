@@ -1,4 +1,4 @@
-@startuml
+@startuml Classes
 
 ' hide the spot
 ' hide circle

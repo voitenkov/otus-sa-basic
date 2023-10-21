@@ -1,0 +1,151 @@
+@startuml
+
+' hide the spot
+' hide circle
+
+' avoid problems with angled crows feet
+skinparam linetype ortho
+
+class "Наряд-заказ" as task_order {
+    task_order_no
+    task_order_date
+    service_station_name
+    employee_full_name
+    vehicle_VIN
+    engine_no
+    vehicle_model
+    vehicle_year
+    vehicle_reg_no
+    vehicle_mileage
+    vehicle_warranty_start
+    customer_full_name
+    customer_address
+    customer_passport_no
+    customer_contacts
+    works_hours
+    calculate_works_amount()
+    calculate_parts_amount()
+}
+
+class "List: Работа наряд-заказа" as works_list {
+    List: task_order_works
+ }
+
+class "Работа наряд-заказа" as works_list_item {
+    work_name
+    work_hours
+    work_qty
+    calculate_work_amount()
+}
+
+class "List: Запчасть наряд-заказа" as parts_list {
+    List: task_order_works
+ }
+
+class "Запчасть наряд-заказа" as parts_list_item {
+    part_name
+    part_no
+    part_qty
+    calculate_part_amount()
+}
+
+class "Работа" as work {
+    work_name
+    work_hours
+    work_cost 
+    skill
+}
+
+class "Автомобиль" as vehicles {
+    customer
+    vehicle_VIN
+    vehicle_engine_no
+    model_name
+    manufacturer_name
+    vehicle_year
+    vehicle_reg_no
+    vehicle_mileage
+    vehicle_warranty_start
+}
+
+class "Модель" as vehicle_model {
+    model_name
+    manufacturer_name
+}
+
+class "Производитель" as vehicle_manufacturer {
+    manufacturer_name
+}
+
+class "Клиент" as customers {
+    customer_surname
+    customer_name
+    customer_patronymic
+    customer_address
+    customer_passport_no
+    customer_vu_no
+    customer_contacts
+}
+
+class "Сотрудник" as employees {
+    employee_surname
+    employee_name
+    employee_patronymic
+    position_name
+}
+
+class "Запчасть" as part {
+    part_no
+    part_name
+    part_price
+}
+
+class "СТО" as service_stations {
+    service_station_name
+    service_station_address
+}
+
+class "Должность" as positions {
+    position_name 
+}
+
+class "Запись на ремонт" as record {
+    record_no
+    record_date
+    repair_date
+    repair_time_start
+    repair_time_finish
+    repair_description
+    service_station_name
+    employee_full_name
+    vehicle_VIN
+    engine_no
+    vehicle_model
+    vehicle_year
+    vehicle_reg_no
+    vehicle_mileage
+    vehicle_warranty_start
+    customer_full_name
+    customer_address
+    customer_passport_no
+    customer_contacts
+}
+
+task_order   "1"*--"1" works_list: "содержится в"
+task_order   "1"*--"0..1" parts_list: "содержится в "
+task_order   "0..*"--"1" service_stations 
+task_order   "0..*"--"1" employees 
+task_order   "0..*"--"1" vehicles: " содержит информацию о ремонте"
+record       "0..*"--"1" service_stations: "оформлен на"
+record       "0..*"--"1" employees: " оформлен"
+record       "0..*"--"1" vehicles 
+works_list   "1"--|>"0..*" works_list_item: "является наследником "
+works_list_item "0..*"--"1" work: "включает "
+parts_list   "1"--|>"0..*" parts_list_item: "является наследником "
+parts_list_item "0..*"--"1" part: "включает " 
+vehicles     "0..*"--"1" customers: " принадлежит"
+vehicles     "0..*"--"1" vehicle_model: "является" 
+vehicle_model "0..*"--"1" vehicle_manufacturer: "произведена " 
+employees    "0..*"--"1" positions: "занимает "
+
+@enduml

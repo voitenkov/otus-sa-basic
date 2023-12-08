@@ -1,24 +1,97 @@
-@startuml
+@startuml Delivery
 Title Процесс планирования доставки запчастей с центрального склада в СТО
 autonumber
 skinparam sequenceMessageAlign center
-
+actor "Менеджер" as Manager
 box "Система управления СТО" #LightBlue
 participant  Frontend
 participant "Сервис доставки" as Delivery
-participant "База данных" as Database
+participant "База данных" as DB
 end box
-
-participant  "Яндекс Экспресс-доставка"
-
+participant "Яндекс Экспресс-доставка" as Yandex
 ==Создание заявки==
-
-Frontend->Delivery: 
+Manager->Frontend: Нажимает кнопку Стоимость доставки
+activate Frontend
+Frontend->Delivery: POST /deliveries/create {[parts],get_from,send_to]}
+deactivate Frontend
 activate Delivery
-
-Frontend<--Delivery: Клиент с указанными данными не найден
-Frontend<--Delivery: Данные введены верно
+Delivery->Yandex: POST /claims/create {[items],route_points,...}
+deactivate Delivery
+activate Yandex
+Delivery<--Yandex: OK 200 {claim_id,status,...}
+deactivate Yandex
+activate Delivery
+Delivery->DB: Записывает delivery_id, claim_id и status
+deactivate Delivery
+activate DB
+Delivery<--DB: Done
+deactivate DB
+activate Delivery
+==Проверка  заявки==
+Delivery->Yandex: POST /claims/info?claim_id={string}
+deactivate Delivery
+activate Yandex
+Delivery<--Yandex: OK 200 {claim_id,status,price,time}
+deactivate Yandex
+activate Delivery
+Delivery->DB: Записывает срок и стоимость доставки
+deactivate Delivery
+activate DB
+Delivery<--DB: Done
+deactivate DB
+activate Delivery
+Frontend<--Delivery: OK 200 {delivery_id,status,price,time}
 deactivate Delivery
 activate Frontend
+Manager<--Frontend: Выводит срок и стоимость доставки
+deactivate Delivery
+deactivate Frontend
+alt Условия доставки устраивают
+Manager->Frontend: Да, нажимает кнопку Подтвердить доставку
+activate Frontend
+Frontend->Delivery: POST /deliveries/accept?delivery_id={string}
+deactivate Frontend
+activate Delivery
+Delivery->Yandex: POST /claims/accept?claim_id={string}
+deactivate Delivery
+activate Yandex
+Delivery<--Yandex: OK 200 {claim_id,status,...}
+deactivate Yandex
+activate Delivery
+Delivery->DB: Обновляет claim_id и status для delivery_id
+deactivate Delivery
+activate DB
+Delivery<--DB: Done
+deactivate DB
+activate Delivery
+Frontend<--Delivery: OK 200 {delivery_id,status,...}
+deactivate Delivery
+activate Frontend
+Manager<--Frontend: Выводит сообщение, что доставка подтверждена
+deactivate Frontend
+else
+Manager->Frontend: Нет, нажимает кнопку Отменить доставку
+activate Frontend
+Frontend->Delivery: POST /deliveries/cancel?delivery_id={string}
+deactivate Frontend
+activate Delivery
+Delivery->Yandex: POST /claims/cancel?claim_id={string}
+deactivate Delivery
+activate Yandex
+Delivery<--Yandex: OK 200
+deactivate Yandex
+activate Delivery
+Delivery->DB: Удаляет delivery_id
+deactivate Delivery
+activate DB
+Delivery<--DB: Done
+deactivate DB
+activate Delivery
+Frontend<--Delivery: OK 200
+deactivate Delivery
+activate Frontend
+Manager<--Frontend: Выводит сообщение, что доставка отменена
+deactivate Frontend
+end
 
 @enduml

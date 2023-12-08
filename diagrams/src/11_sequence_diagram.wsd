@@ -1,0 +1,24 @@
+@startuml
+Title Процесс планирования доставки запчастей с центрального склада в СТО
+autonumber
+skinparam sequenceMessageAlign center
+
+box "Система управления СТО" #LightBlue
+participant  Frontend
+participant "Сервис доставки" as Delivery
+participant "База данных" as Database
+end box
+
+participant  "Яндекс Экспресс-доставка"
+
+==Создание заявки==
+
+Frontend->Delivery: 
+activate Delivery
+
+Frontend<--Delivery: Клиент с указанными данными не найден
+Frontend<--Delivery: Данные введены верно
+deactivate Delivery
+activate Frontend
+
+@enduml

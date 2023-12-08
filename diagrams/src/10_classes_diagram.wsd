@@ -76,7 +76,6 @@ class "Клиент" as customers {
     customer_patronymic
     customer_address
     customer_passport_no
-    customer_vu_no
     customer_contacts
 }
 
@@ -85,6 +84,14 @@ class "Сотрудник" as employees {
     employee_name
     employee_patronymic
     position_name
+}
+
+class "Механик" as mechanics {
+    skill_name
+}
+
+class "Квалификация" as skills {
+    skill_name
 }
 
 class "Запчасть" as part {
@@ -124,6 +131,18 @@ class "Запись на ремонт" as record {
     customer_contacts
 }
 
+class "Отказ клиента" as customer_refusals {
+    customer_refusal_date
+    customer_id
+    customer_full_name
+    refusal_id
+    customer_refusal_description
+}
+
+class "Причина отказа" as refusals {
+    refusal_type
+}
+
 task_order   "1"*--"1..*" works_list_item: "содержит"
 task_order   "1"*--"0..*" parts_list_item: "содержит"
 task_order   "0..*"--"1" service_stations 
@@ -138,5 +157,9 @@ vehicles     "0..*"--"1" customers: " принадлежит"
 vehicles     "0..*"--"1" vehicle_model: "является" 
 vehicle_model "0..*"--"1" vehicle_manufacturer: "произведена " 
 employees    "0..*"--"1" positions: "занимает "
+employees    "1"<|--"1" mechanics: "является"
+mechanics    "0..*"--"1" skills: "обладает"
+customer_refusals "0..*"--"1" customers: "принадлежит"
+customer_refusals "0..*"--"1" refusals: "является"
 
 @enduml

@@ -1,0 +1,54 @@
+@startuml
+Title Процесс планирования доставки запчастей с центрального склада в СТО
+autonumber
+skinparam sequenceMessageAlign center
+
+box "Система управления СТО" #LightBlue
+participant  Frontend
+participant "Сервис доставки" as Delivery
+participant "База данных" as Database
+end box
+
+participant  "Яндекс Экспресс-доставка"
+
+==Создание заявки==
+
+Frontend->Delivery: 
+activate Delivery
+
+alt Логин и/или пароль введены неверно
+Frontend<--AV: Клиент с указанными данными не найден
+else
+Frontend<--AV: Данные введены верно
+deactivate AV
+activate Frontend
+end
+
+==Выбор книг==
+Frontend->book:Запрос на получение списка книг
+deactivate Frontend
+activate book
+Frontend<--book:Список книг доступных для покупки
+deactivate book
+activate Frontend
+Frontend->Frontend:Просмотр книг для последующей\n покупки
+Frontend-->book:Добавление выбранных книг в корзину
+deactivate Frontend
+activate book
+Frontend<--book:Книги в корзине
+deactivate book
+activate Frontend
+==Оплата==
+Frontend->pay:Оплата выбранных книг
+deactivate Frontend
+activate pay
+
+alt Денежных средств не достаточно
+Frontend<--pay:Денежных средств недостаточно
+else
+Frontend<--pay:Покупка прошла успешно
+deactivate pay
+end
+
+
+@enduml
